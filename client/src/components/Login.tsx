@@ -1,23 +1,23 @@
-import { useState, FormEvent } from 'react';
-import '../styles/Login.css';
+import { useState } from 'react';
+import { auth } from '../firebase/config.ts';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 
-interface LoginProps {
-  onLogin: (email: string, password: string) => void;
-}
-
-const Login = ({ onLogin }: LoginProps) => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    
     try {
-      await onLogin(email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Handle successful login
+      console.log('Logged in user:', userCredential.user);
+      // Redirect or update state as needed
     } catch (err) {
-      setError('Invalid email or password');
+      const firebaseError = err as FirebaseError;
+      setError(firebaseError.message);
     }
   };
 
@@ -49,12 +49,10 @@ const Login = ({ onLogin }: LoginProps) => {
           />
         </div>
 
-        <button type="submit" className="login-button">
-          Log In
-        </button>
+        <button type="submit">Login</button>
       </form>
     </div>
   );
 };
 
-export default Login; 
+export default Login;
