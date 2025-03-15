@@ -1,84 +1,100 @@
-import { useNavigate } from 'react-router-dom';
+import * as React from 'react';
+import { useState } from 'react';
 import '../styles/HomePage.css';
+import { FaSearch, FaPlus, FaUser, FaMapMarkerAlt } from 'react-icons/fa';
 
-const HomePage = () => {
-  const navigate = useNavigate();
+interface Event {
+  id: string;
+  title: string;
+  location: string;
+  host: string;
+  commonInterests: number;
+}
+
+const HomePage: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Mock data - replace with actual data from Firebase
+  const events: Event[] = [
+    {
+      id: '1',
+      title: 'Some Event',
+      location: 'Address 1, City, Parish',
+      host: 'User123',
+      commonInterests: 6
+    },
+    {
+      id: '2',
+      title: 'Some Event',
+      location: 'Address 1, City, Parish',
+      host: 'User123',
+      commonInterests: 6
+    },
+    {
+      id: '3',
+      title: 'Some Event',
+      location: 'Address 1, City, Parish',
+      host: 'User123',
+      commonInterests: 6
+    },
+    {
+      id: '4',
+      title: 'Some Event',
+      location: 'Address 1, City, Parish',
+      host: 'User123',
+      commonInterests: 6
+    }
+  ];
 
   return (
-    <div className="home-container">
-      <header className="hero-section">
-        <div className="hero-content">
-          <h1>Connect Through Common Interests</h1>
-          <p className="hero-subtitle">
-            Find and connect with people who share your passions
-          </p>
-          <div className="cta-buttons">
-            <button 
-              className="primary-button"
-              onClick={() => navigate('/signup')}
-            >
-              Get Started
-            </button>
-            <button 
-              className="secondary-button"
-              onClick={() => navigate('/login')}
-            >
-              Login
-            </button>
-          </div>
+    <div className="homepage">
+      <header className="header">
+        <h1 className="logo">LinkUp</h1>
+        <div className="search-bar">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search event"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
+        <button className="create-button">
+          <FaPlus />
+        </button>
       </header>
 
-      <section className="features-section">
-        <h2>Why Join Us?</h2>
-        <div className="features-grid">
-          <div className="feature-card">
-            <div className="feature-icon">🎯</div>
-            <h3>Match by Interests</h3>
-            <p>Connect with people who share your specific interests and hobbies</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🤝</div>
-            <h3>Meaningful Connections</h3>
-            <p>Build genuine relationships based on common passions</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🌟</div>
-            <h3>Discover Communities</h3>
-            <p>Join interest-based groups and expand your network</p>
-          </div>
-        </div>
-      </section>
+      <main className="main-content">
+        <aside className="filters">
+          <h2>Filter:</h2>
+          {/* Add filter options here */}
+        </aside>
 
-      <section className="categories-section">
-        <h2>Popular Interest Categories</h2>
-        <div className="categories-grid">
-          {['Sports', 'Technology', 'Arts', 'Music', 'Gaming', 'Travel'].map(category => (
-            <div key={category} className="category-card">
-              <h4>{category}</h4>
-              <button 
-                className="explore-button"
-                onClick={() => navigate('/signup')}
-              >
-                Explore
-              </button>
+        <section className="events-list">
+          {events.map(event => (
+            <div key={event.id} className="event-card">
+              <div className="event-host">
+                <div className="host-avatar">
+                  <FaUser />
+                </div>
+                <div className="host-info">
+                  <p className="host-name">{event.host}</p>
+                  <p className="common-interests">{event.commonInterests} common interests</p>
+                </div>
+                <button className="link-button">L</button>
+              </div>
+              
+              <div className="event-details">
+                <h3 className="event-title">{event.title}</h3>
+                <p className="event-location">
+                  <FaMapMarkerAlt className="location-icon" />
+                  {event.location}
+                </p>
+              </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      <section className="join-section">
-        <div className="join-content">
-          <h2>Ready to Connect?</h2>
-          <p>Join our community and start meeting people who share your interests</p>
-          <button 
-            className="primary-button"
-            onClick={() => navigate('/signup')}
-          >
-            Sign Up Now
-          </button>
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
   );
 };
