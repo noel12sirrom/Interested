@@ -130,7 +130,6 @@ const SignUp: React.FC = () => {
 
       <div className="signup-form-container">
         <div className="signup-card">
-          <img src="/logo.png" alt="Logo" className="brand-logo" />
           <h2>Create Account</h2>
           <p className="subtitle">Join us today! Please enter your details.</p>
 

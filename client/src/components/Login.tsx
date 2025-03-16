@@ -132,7 +132,6 @@ const Login: React.FC = () => {
 
       <div className="login-form-container">
         <div className="login-card">
-          <img src="/logo.png" alt="Logo" className="brand-logo" />
           <h2>Sign In</h2>
           <p className="subtitle">Welcome back! Please enter your details.</p>
 

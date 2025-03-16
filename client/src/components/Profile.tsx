@@ -33,7 +33,7 @@ const Profile: React.FC = () => {
     'Technology', 'Sports', 'Music', 'Art', 'Travel', 'Food', 'Fitness',
     'Gaming', 'Movies', 'Books', 'Photography', 'Nature', 'Science',
     'Fashion', 'Business', 'Education', 'Health', 'Cooking', 'DIY',
-    'Pets', 'Fitness', 'Yoga', 'Meditation', 'Dance', 'Theater'
+    'Pets', 'Yoga', 'Meditation', 'Dance', 'Theater'
   ];
 
   console.log('Profile component rendering, userProfile:', userProfile);

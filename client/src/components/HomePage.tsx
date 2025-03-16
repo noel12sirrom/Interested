@@ -155,20 +155,21 @@ const HomePage: React.FC = () => {
             <FaSearch className="search-icon" />
             <input
               type="text"
-              placeholder="Search by location"
+              className="search-input"
+              placeholder="Search by location..."
               value={searchQuery}
               onChange={handleSearch}
             />
           </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button className="profile-button" onClick={() => navigate('/profile')}>
+          <div className="header-actions">
+            <button className="profile-link" onClick={() => navigate('/profile')}>
               <FaUserCircle /> Profile
             </button>
-            <button className="sign-out-button" onClick={handleSignOut}>
-              <FaSignOutAlt /> Sign Out
+            <button className="create-event-button" onClick={() => setIsCreateModalOpen(true)}>
+              <FaPlus /> Create Event
             </button>
-            <button className="create-button" onClick={() => setIsCreateModalOpen(true)}>
-              <FaPlus />
+            <button className="sign-out-button" onClick={handleSignOut}>
+              <FaSignOutAlt />
             </button>
           </div>
         </header>
