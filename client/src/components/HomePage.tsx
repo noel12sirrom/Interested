@@ -1,11 +1,17 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getEvents, getEventsByInterests, Event } from '../firebase/eventService';
+import { getEvents, getEventsByInterests, Event, deleteEvent } from '../firebase/eventService';
 import CreateEventModal from './CreateEventModal';
+import EditEventModal from './EditEventModal';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
+import EventMap from './EventMap';
 import '../styles/HomePage.css';
-import { FaSearch, FaPlus, FaUser, FaMapMarkerAlt, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaUser, FaMapMarkerAlt, FaUserCircle, FaSignOutAlt, FaEdit, FaTrash } from 'react-icons/fa';
+import { auth, db } from '../firebase/config';
+import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
+import { createEvent, updateEvent } from '../firebase/eventService';
 
 type EventFilter = 'all' | 'my' | 'interests';
 
@@ -15,7 +21,7 @@ const formatDate = (date: Date) => {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    hour: '2-digit',
+    hour: 'numeric',
     minute: '2-digit'
   }).format(date);
 };
@@ -24,33 +30,112 @@ const HomePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [activeFilter, setActiveFilter] = useState<EventFilter>('all');
   const { userProfile, user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchBox, setSearchBox] = useState<google.maps.places.Autocomplete | null>(null);
+
+  const fetchEvents = async () => {
+    setIsLoading(true);
+    try {
+      console.log('Fetching events with filter:', activeFilter);
+      console.log('User ID:', user?.uid);
+      console.log('Search query:', searchQuery);
+      
+      let fetchedEvents: Event[] = [];
+      
+      if (activeFilter === 'interests' && userProfile?.interests?.length) {
+        console.log('Fetching events by interests:', userProfile.interests);
+        fetchedEvents = await getEventsByInterests(userProfile.interests, user?.uid);
+      } else {
+        console.log('Fetching all events');
+        fetchedEvents = await getEvents(searchQuery, user?.uid, activeFilter);
+      }
+
+      console.log('Fetched events:', fetchedEvents);
+      setEvents(fetchedEvents);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      setIsLoading(true);
-      try {
-        let fetchedEvents: Event[] = [];
-        
-        if (activeFilter === 'interests' && userProfile?.interests?.length) {
-          fetchedEvents = await getEventsByInterests(userProfile.interests, user?.uid);
-        } else {
-          fetchedEvents = await getEvents(searchQuery, user?.uid, activeFilter);
-        }
-
-        setEvents(fetchedEvents);
-      } catch (error) {
-        console.error('Error fetching events:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchEvents();
+
+    // Get user's location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error('Error getting user location:', error);
+        }
+      );
+    }
+
+    // Subscribe to events
+    const q = query(collection(db, 'events'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const eventsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate(),
+        date: doc.data().date?.toDate(),
+      })) as Event[];
+      setEvents(eventsData);
+    });
+
+    return () => unsubscribe();
   }, [searchQuery, userProfile?.interests, activeFilter, user]);
+
+  useEffect(() => {
+    // Initialize search box
+    if (searchInputRef.current && !searchBox && window.googleMapsLoaded) {
+      const searchBoxInstance = new google.maps.places.Autocomplete(searchInputRef.current, {
+        types: ['address'],
+      });
+      setSearchBox(searchBoxInstance);
+
+      // Handle place selection
+      searchBoxInstance.addListener('place_changed', () => {
+        const place = searchBoxInstance.getPlace();
+        if (place.formatted_address) {
+          setSearchQuery(place.formatted_address);
+        }
+      });
+    } else if (!window.googleMapsLoaded) {
+      // Listen for the Google Maps load event
+      window.addEventListener('googleMapsLoaded', () => {
+        if (searchInputRef.current && !searchBox) {
+          const searchBoxInstance = new google.maps.places.Autocomplete(searchInputRef.current, {
+            types: ['address'],
+          });
+          setSearchBox(searchBoxInstance);
+
+          // Handle place selection
+          searchBoxInstance.addListener('place_changed', () => {
+            const place = searchBoxInstance.getPlace();
+            if (place.formatted_address) {
+              setSearchQuery(place.formatted_address);
+            }
+          });
+        }
+      });
+    }
+  }, [searchInputRef, searchBox]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -62,6 +147,64 @@ const HomePage: React.FC = () => {
       navigate('/login');
     } catch (error) {
       console.error('Error signing out:', error);
+    }
+  };
+
+  const handleDeleteClick = (event: Event) => {
+    setEventToDelete(event);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!eventToDelete || !user) return;
+    
+    try {
+      await deleteEvent(eventToDelete.id, user.uid);
+      setEvents(events.filter(event => event.id !== eventToDelete.id));
+      setIsDeleteModalOpen(false);
+      setEventToDelete(null);
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      alert('Failed to delete event');
+    }
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setSelectedEvent(event);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEventUpdated = () => {
+    fetchEvents();
+  };
+
+  const handleCreateEvent = async (eventData: Omit<Event, 'id'>) => {
+    try {
+      await createEvent(eventData);
+      setIsCreateModalOpen(false);
+    } catch (error) {
+      console.error('Error creating event:', error);
+    }
+  };
+
+  const handleEditEventSubmit = async (eventId: string, eventData: Partial<Event>) => {
+    try {
+      if (!user) return;
+      await updateEvent(eventId, user.uid, eventData);
+      setIsEditModalOpen(false);
+      setSelectedEvent(null);
+    } catch (error) {
+      console.error('Error updating event:', error);
+    }
+  };
+
+  const handleMarkerClick = (eventId: string) => {
+    const event = events.find(e => e.id === eventId);
+    if (event) {
+      const element = document.getElementById(`event-${eventId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
@@ -83,9 +226,10 @@ const HomePage: React.FC = () => {
               placeholder="Search by location"
               value={searchQuery}
               onChange={handleSearch}
+              ref={searchInputRef}
             />
           </div>
-          <button className="create-button" onClick={() => setIsModalOpen(true)}>
+          <button className="create-button" onClick={() => setIsCreateModalOpen(true)}>
             <FaPlus />
           </button>
         </header>
@@ -120,7 +264,7 @@ const HomePage: React.FC = () => {
               <div className="loading">Loading events...</div>
             ) : events.length > 0 ? (
               events.map(event => (
-                <div key={event.id} className="event-card">
+                <div key={event.id} id={`event-${event.id}`} className="event-card">
                   <div className="event-header">
                     <div className="event-host">
                       <div className="host-avatar">
@@ -134,6 +278,22 @@ const HomePage: React.FC = () => {
                       <FaMapMarkerAlt className="location-icon" />
                       {event.location}
                     </div>
+                    {user && event.hostId === user.uid && (
+                      <div className="event-actions">
+                        <button
+                          className="edit-button"
+                          onClick={() => handleEditEvent(event)}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDeleteClick(event)}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="event-content">
@@ -143,10 +303,6 @@ const HomePage: React.FC = () => {
                       <div className="event-date">
                         <span className="date-label">Date:</span>
                         {formatDate(event.date)}
-                      </div>
-                      <div className="event-time">
-                        <span className="time-label">Time:</span>
-                        {event.time}
                       </div>
                     </div>
                   </div>
@@ -158,13 +314,51 @@ const HomePage: React.FC = () => {
               </div>
             )}
           </section>
+
+          <div className="map-section">
+            <h2>Event Locations</h2>
+            <EventMap
+              events={events}
+              onMarkerClick={handleMarkerClick}
+              center={userLocation || { lat: 40.7128, lng: -74.0060 }}
+            />
+          </div>
         </main>
       </div>
 
-      <CreateEventModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
+      {isCreateModalOpen && (
+        <CreateEventModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          userId={user?.uid || ''}
+          onEventCreated={handleEventUpdated}
+        />
+      )}
+
+      {isEditModalOpen && selectedEvent && (
+        <EditEventModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedEvent(null);
+          }}
+          event={selectedEvent}
+          userId={user?.uid || ''}
+          onEventUpdated={handleEventUpdated}
+        />
+      )}
+
+      {isDeleteModalOpen && eventToDelete && (
+        <DeleteConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setEventToDelete(null);
+          }}
+          onConfirm={handleDeleteConfirm}
+          eventTitle={eventToDelete.title}
+        />
+      )}
     </div>
   );
 };

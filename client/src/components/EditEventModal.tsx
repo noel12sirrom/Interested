@@ -1,28 +1,44 @@
-import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { createEvent } from '../firebase/eventService';
+import { useState, useEffect } from 'react';
+import { Event, updateEvent } from '../firebase/eventService';
 import LocationSearchMap from './LocationSearchMap';
-import '../styles/CreateEventModal.css';
+import '../styles/Modal.css';
+import { FaTimes } from 'react-icons/fa';
 
-interface CreateEventModalProps {
+interface EditEventModalProps {
   isOpen: boolean;
   onClose: () => void;
+  event: Event;
   userId: string;
-  onEventCreated: () => void;
+  onEventUpdated: () => void;
 }
 
-const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, userId, onEventCreated }) => {
-  const { user, userProfile } = useAuth();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('');
-  const [locationCoordinates, setLocationCoordinates] = useState<{ lat: number; lng: number } | null>(null);
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [interests, setInterests] = useState<string[]>([]);
+const EditEventModal: React.FC<EditEventModalProps> = ({
+  isOpen,
+  onClose,
+  event,
+  userId,
+  onEventUpdated,
+}: EditEventModalProps) => {
+  const [title, setTitle] = useState(event.title);
+  const [description, setDescription] = useState(event.description);
+  const [location, setLocation] = useState(event.location);
+  const [locationCoordinates, setLocationCoordinates] = useState(event.locationCoordinates);
+  const [date, setDate] = useState(event.date.toISOString().split('T')[0]);
+  const [time, setTime] = useState(event.time);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setTitle(event.title);
+    setDescription(event.description);
+    setLocation(event.location);
+    setLocationCoordinates(event.locationCoordinates);
+    setDate(event.date.toISOString().split('T')[0]);
+    setTime(event.time);
+    setError('');
+    setSuccess('');
+  }, [event]);
 
   const handleLocationSelect = (selectedLocation: string, coordinates: { lat: number; lng: number }) => {
     setLocation(selectedLocation);
@@ -34,12 +50,6 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
     setError('');
     setSuccess('');
     setIsLoading(true);
-
-    if (!user || !userProfile) {
-      setError('You must be logged in to create an event');
-      setIsLoading(false);
-      return;
-    }
 
     if (!locationCoordinates) {
       setError('Please select a location on the map');
@@ -55,28 +65,19 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
         description,
         location,
         locationCoordinates,
-        hostId: user.uid,
-        hostName: userProfile.displayName,
-        interests: userProfile.interests,
         date: eventDateTime,
         time: time
       };
 
-      await createEvent(eventData);
-      setSuccess('Event created successfully!');
-      // Reset form
-      setTitle('');
-      setDescription('');
-      setLocation('');
-      setLocationCoordinates(null);
-      setDate('');
-      setTime('');
-      setInterests([]);
-      // Close modal after 2 seconds
-      setTimeout(onClose, 2000);
+      await updateEvent(event.id, userId, eventData);
+      setSuccess('Event updated successfully!');
+      setTimeout(() => {
+        onEventUpdated();
+        onClose();
+      }, 2000);
     } catch (error: any) {
-      console.error('Error creating event:', error);
-      setError(error.message || 'Failed to create event');
+      console.error('Error updating event:', error);
+      setError(error.message || 'Failed to update event');
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +88,10 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>Create New Event</h2>
+        <button className="close-button" onClick={onClose}>
+          <FaTimes />
+        </button>
+        <h2>Edit Event</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="title">Title</label>
@@ -114,6 +118,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
             <label>Location</label>
             <LocationSearchMap
               onLocationSelect={handleLocationSelect}
+              initialLocation={locationCoordinates}
               initialAddress={location}
             />
             <input
@@ -157,7 +162,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
               Cancel
             </button>
             <button type="submit" disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Create Event'}
+              {isLoading ? 'Updating...' : 'Update Event'}
             </button>
           </div>
         </form>
@@ -166,4 +171,4 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
   );
 };
 
-export default CreateEventModal; 
+export default EditEventModal; 

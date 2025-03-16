@@ -1,0 +1,8 @@
+{
+  "short_name": "LinkUp",
+  "name": "LinkUp - Find and create events",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+} 
