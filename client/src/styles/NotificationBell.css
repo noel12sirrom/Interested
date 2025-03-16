@@ -34,6 +34,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: pulse 2s infinite;
 }
 
 .notifications-dropdown {
@@ -76,6 +77,14 @@
   background-color: #e6f3ff;
 }
 
+.notification-item.accepted {
+  border-left: 3px solid #28a745;
+}
+
+.notification-item.rejected {
+  border-left: 3px solid #dc3545;
+}
+
 .notification-content {
   margin-bottom: 0.5rem;
 }
@@ -84,6 +93,24 @@
   margin: 0;
   color: #333;
   line-height: 1.4;
+}
+
+.notification-content p span.accepted,
+.notification-content p span.rejected {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.notification-content p span.accepted {
+  background-color: #e6fff0;
+  color: #28a745;
+}
+
+.notification-content p span.rejected {
+  background-color: #ffe6e6;
+  color: #dc3545;
 }
 
 .notification-time {
@@ -126,24 +153,6 @@
   background-color: #c82333;
 }
 
-.notification-status {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-}
-
-.notification-status.accepted {
-  background-color: #28a745;
-  color: white;
-}
-
-.notification-status.rejected {
-  background-color: #dc3545;
-  color: white;
-}
-
 .no-notifications {
   padding: 1rem;
   text-align: center;
@@ -180,8 +189,4 @@
   100% {
     transform: scale(1);
   }
-}
-
-.notification-badge {
-  animation: pulse 2s infinite;
 } 

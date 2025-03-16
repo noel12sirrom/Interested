@@ -32,7 +32,10 @@ const LinkRequestButton: React.FC<LinkRequestButtonProps> = ({ eventId, hostId, 
     
     try {
       setIsLoading(true);
+      console.log('Sending link request...', { eventId, userId: user.uid, userName: userProfile.displayName });
       await sendLinkRequest(eventId, user.uid, userProfile.displayName || 'Anonymous');
+      
+      console.log('Creating notification...', { eventId, eventTitle, hostId });
       await createNotification(
         eventId,
         eventTitle,
@@ -40,9 +43,11 @@ const LinkRequestButton: React.FC<LinkRequestButtonProps> = ({ eventId, hostId, 
         userProfile.displayName || 'Anonymous',
         hostId
       );
+      
+      console.log('Link request sent successfully');
       setRequestStatus('pending');
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000); // Hide success message after 3 seconds
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Error sending link request:', error);
     } finally {

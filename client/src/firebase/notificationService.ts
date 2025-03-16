@@ -3,7 +3,7 @@ import { collection, addDoc, updateDoc, doc, serverTimestamp, deleteDoc } from '
 
 export interface Notification {
   id: string;
-  type: 'linkRequest';
+  type: 'linkRequest' | 'linkResponse';
   eventId: string;
   eventTitle: string;
   fromUserId: string;
@@ -19,17 +19,19 @@ export const createNotification = async (
   eventTitle: string,
   fromUserId: string,
   fromUserName: string,
-  toUserId: string
+  toUserId: string,
+  type: 'linkRequest' | 'linkResponse' = 'linkRequest',
+  status: 'pending' | 'accepted' | 'rejected' = 'pending'
 ) => {
   try {
     const notificationData = {
-      type: 'linkRequest',
+      type,
       eventId,
       eventTitle,
       fromUserId,
       fromUserName,
       toUserId,
-      status: 'pending',
+      status,
       timestamp: serverTimestamp(),
       read: false
     };
@@ -39,6 +41,25 @@ export const createNotification = async (
     console.error('Error creating notification:', error);
     throw error;
   }
+};
+
+export const createResponseNotification = async (
+  eventId: string,
+  eventTitle: string,
+  fromUserId: string,
+  fromUserName: string,
+  toUserId: string,
+  status: 'accepted' | 'rejected'
+) => {
+  return createNotification(
+    eventId,
+    eventTitle,
+    fromUserId,
+    fromUserName,
+    toUserId,
+    'linkResponse',
+    status
+  );
 };
 
 export const updateNotificationStatus = async (

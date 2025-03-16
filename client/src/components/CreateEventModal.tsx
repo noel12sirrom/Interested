@@ -53,7 +53,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
         title,
         description,
         location,
-        coordinates,
+        coordinates: coordinates || undefined,
         hostId: user.uid,
         hostName: userProfile.displayName,
         interests: userProfile.interests,

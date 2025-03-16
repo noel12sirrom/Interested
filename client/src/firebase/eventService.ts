@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, orderBy, limit, Query, addDoc, serverTimestamp, doc, updateDoc, arrayUnion, getDoc, deleteDoc, Timestamp, DocumentData } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, Query, addDoc, serverTimestamp, doc, updateDoc, arrayUnion, getDoc, deleteDoc, Timestamp, DocumentData, setDoc } from 'firebase/firestore';
 import { db } from './config';
 
 interface LinkRequest {
@@ -204,6 +204,12 @@ export const updateEvent = async (
 export const sendLinkRequest = async (eventId: string, userId: string, userName: string) => {
   try {
     const eventRef = doc(db, 'events', eventId);
+    const eventDoc = await getDoc(eventRef);
+    
+    if (!eventDoc.exists()) {
+      throw new Error('Event not found');
+    }
+
     const linkRequest: LinkRequest = {
       userId,
       userName,
@@ -211,9 +217,13 @@ export const sendLinkRequest = async (eventId: string, userId: string, userName:
       timestamp: new Date()
     };
 
-    await updateDoc(eventRef, {
-      [`linkRequests.${userId}`]: linkRequest
-    });
+    // Create or update the linkRequests field
+    await setDoc(eventRef, {
+      linkRequests: {
+        [userId]: linkRequest
+      }
+    }, { merge: true });
+
   } catch (error) {
     console.error('Error sending link request:', error);
     throw error;
@@ -223,9 +233,32 @@ export const sendLinkRequest = async (eventId: string, userId: string, userName:
 export const respondToLinkRequest = async (eventId: string, userId: string, status: 'accepted' | 'rejected') => {
   try {
     const eventRef = doc(db, 'events', eventId);
+    const eventDoc = await getDoc(eventRef);
+    
+    if (!eventDoc.exists()) {
+      throw new Error('Event not found');
+    }
+
+    const eventData = eventDoc.data();
+    const linkRequest = eventData.linkRequests?.[userId];
+    
+    if (!linkRequest) {
+      throw new Error('Link request not found');
+    }
+
+    // Update the link request status
     await updateDoc(eventRef, {
       [`linkRequests.${userId}.status`]: status
     });
+
+    if (status === 'accepted') {
+      // Add the event to the user's events array
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        events: arrayUnion(eventId)
+      });
+    }
+
   } catch (error) {
     console.error('Error responding to link request:', error);
     throw error;
