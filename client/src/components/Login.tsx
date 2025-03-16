@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase/config';
 import { createUserProfile } from '../firebase/userService';
 import { doc, getDoc } from 'firebase/firestore';
@@ -12,12 +12,15 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setIsLoading(true);
 
     try {
@@ -31,6 +34,34 @@ const Login: React.FC = () => {
         setError('Incorrect password. Please try again.');
       } else {
         setError(error.message || 'Failed to log in');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setIsLoading(true);
+
+    if (!email) {
+      setError('Please enter your email address');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setSuccess('Password reset email sent! Please check your inbox.');
+      setShowForgotPassword(false);
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      if (error.code === 'auth/user-not-found') {
+        setError('No account found with this email address.');
+      } else {
+        setError(error.message || 'Failed to send password reset email');
       }
     } finally {
       setIsLoading(false);
@@ -106,36 +137,73 @@ const Login: React.FC = () => {
           <p className="subtitle">Welcome back! Please enter your details.</p>
 
           {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
 
-          <form onSubmit={handleEmailLogin}>
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="Enter your email"
-                disabled={isLoading}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Enter your password"
-                disabled={isLoading}
-              />
-            </div>
-            <button type="submit" className="login-button" disabled={isLoading}>
-              {isLoading ? 'Signing In...' : 'Sign In'}
-            </button>
-          </form>
+          {!showForgotPassword ? (
+            <form onSubmit={handleEmailLogin}>
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="Enter your email"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="password">
+                  Password
+                  <button
+                    type="button"
+                    className="forgot-password-link"
+                    onClick={() => setShowForgotPassword(true)}
+                  >
+                    Forgot password?
+                  </button>
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Enter your password"
+                  disabled={isLoading}
+                />
+              </div>
+              <button type="submit" className="login-button" disabled={isLoading}>
+                {isLoading ? 'Signing In...' : 'Sign In'}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleForgotPassword}>
+              <div className="form-group">
+                <label htmlFor="reset-email">Email</label>
+                <input
+                  type="email"
+                  id="reset-email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="Enter your email"
+                  disabled={isLoading}
+                />
+              </div>
+              <button type="submit" className="login-button" disabled={isLoading}>
+                {isLoading ? 'Sending...' : 'Send Reset Link'}
+              </button>
+              <button
+                type="button"
+                className="back-to-login"
+                onClick={() => setShowForgotPassword(false)}
+              >
+                Back to Login
+              </button>
+            </form>
+          )}
 
           <div className="divider"><span>or</span></div>
 

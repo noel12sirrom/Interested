@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Event, updateEvent } from '../firebase/eventService';
-import LocationSearchMap from './LocationSearchMap';
 import '../styles/Modal.css';
 import { FaTimes } from 'react-icons/fa';
 
@@ -22,7 +21,6 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
   const [title, setTitle] = useState(event.title);
   const [description, setDescription] = useState(event.description);
   const [location, setLocation] = useState(event.location);
-  const [locationCoordinates, setLocationCoordinates] = useState(event.locationCoordinates);
   const [date, setDate] = useState(event.date.toISOString().split('T')[0]);
   const [time, setTime] = useState(event.time);
   const [error, setError] = useState('');
@@ -33,29 +31,17 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
     setTitle(event.title);
     setDescription(event.description);
     setLocation(event.location);
-    setLocationCoordinates(event.locationCoordinates);
     setDate(event.date.toISOString().split('T')[0]);
     setTime(event.time);
     setError('');
     setSuccess('');
   }, [event]);
 
-  const handleLocationSelect = (selectedLocation: string, coordinates: { lat: number; lng: number }) => {
-    setLocation(selectedLocation);
-    setLocationCoordinates(coordinates);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setIsLoading(true);
-
-    if (!locationCoordinates) {
-      setError('Please select a location on the map');
-      setIsLoading(false);
-      return;
-    }
 
     try {
       const eventDateTime = new Date(`${date}T${time}`);
@@ -64,7 +50,6 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
         title,
         description,
         location,
-        locationCoordinates,
         date: eventDateTime,
         time: time
       };
@@ -88,10 +73,12 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button className="close-button" onClick={onClose}>
-          <FaTimes />
-        </button>
-        <h2>Edit Event</h2>
+        <div className="modal-header">
+          <h2>Edit Event</h2>
+          <button className="close-button" onClick={onClose}>
+            <FaTimes />
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="title">Title</label>
@@ -115,17 +102,13 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
           </div>
 
           <div className="form-group">
-            <label>Location</label>
-            <LocationSearchMap
-              onLocationSelect={handleLocationSelect}
-              initialLocation={locationCoordinates}
-              initialAddress={location}
-            />
+            <label htmlFor="location">Location</label>
             <input
               type="text"
               id="location"
               value={location}
-              readOnly
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Enter event location"
               required
             />
           </div>

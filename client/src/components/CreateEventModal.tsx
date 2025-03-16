@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { createEvent } from '../firebase/eventService';
-import LocationSearchMap from './LocationSearchMap';
+import { createEvent, CreateEventData } from '../firebase/eventService';
 import '../styles/CreateEventModal.css';
 
 interface CreateEventModalProps {
@@ -16,18 +15,11 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
-  const [locationCoordinates, setLocationCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [interests, setInterests] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleLocationSelect = (selectedLocation: string, coordinates: { lat: number; lng: number }) => {
-    setLocation(selectedLocation);
-    setLocationCoordinates(coordinates);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,20 +33,13 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
       return;
     }
 
-    if (!locationCoordinates) {
-      setError('Please select a location on the map');
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const eventDateTime = new Date(`${date}T${time}`);
       
-      const eventData = {
+      const eventData: CreateEventData = {
         title,
         description,
         location,
-        locationCoordinates,
         hostId: user.uid,
         hostName: userProfile.displayName,
         interests: userProfile.interests,
@@ -68,10 +53,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
       setTitle('');
       setDescription('');
       setLocation('');
-      setLocationCoordinates(null);
       setDate('');
       setTime('');
-      setInterests([]);
       // Close modal after 2 seconds
       setTimeout(onClose, 2000);
     } catch (error: any) {
@@ -111,16 +94,13 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
           </div>
 
           <div className="form-group">
-            <label>Location</label>
-            <LocationSearchMap
-              onLocationSelect={handleLocationSelect}
-              initialAddress={location}
-            />
+            <label htmlFor="location">Location</label>
             <input
               type="text"
               id="location"
               value={location}
-              readOnly
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Enter event location"
               required
             />
           </div>

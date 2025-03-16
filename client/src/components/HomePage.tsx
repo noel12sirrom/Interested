@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getEvents, getEventsByInterests, Event, deleteEvent } from '../firebase/eventService';
@@ -7,10 +7,9 @@ import CreateEventModal from './CreateEventModal';
 import EditEventModal from './EditEventModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import '../styles/HomePage.css';
-import { FaSearch, FaPlus, FaUser, FaMapMarkerAlt, FaUserCircle, FaSignOutAlt, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaUser, FaMapMarkerAlt, FaUserCircle, FaSignOutAlt, FaEdit, FaTrash, FaCalendarAlt } from 'react-icons/fa';
 import { auth, db } from '../firebase/config';
-import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
-import { createEvent, updateEvent } from '../firebase/eventService';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 type EventFilter = 'all' | 'my' | 'interests';
 
@@ -37,9 +36,6 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const [searchBox, setSearchBox] = useState<google.maps.places.Autocomplete | null>(null);
-  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
 
   const fetchEvents = async () => {
     setIsLoading(true);
@@ -85,59 +81,6 @@ const HomePage: React.FC = () => {
     return () => unsubscribe();
   }, [searchQuery, userProfile?.interests, activeFilter, user]);
 
-  useEffect(() => {
-    const checkGoogleMapsLoaded = () => {
-      if (window.google && window.google.maps && window.google.maps.places) {
-        setIsGoogleMapsLoaded(true);
-        initializeAutocomplete();
-      }
-    };
-
-    const handleMapsLoaded = () => {
-      checkGoogleMapsLoaded();
-    };
-
-    // Check if already loaded
-    checkGoogleMapsLoaded();
-
-    // Listen for the load event
-    window.addEventListener('googleMapsLoaded', handleMapsLoaded);
-
-    return () => {
-      window.removeEventListener('googleMapsLoaded', handleMapsLoaded);
-    };
-  }, []);
-
-  const initializeAutocomplete = () => {
-    if (!searchInputRef.current || searchBox) return;
-
-    try {
-      const autocomplete = new google.maps.places.Autocomplete(searchInputRef.current, {
-        types: ['geocode'],
-        fields: ['formatted_address', 'geometry']
-      });
-
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        if (place.formatted_address) {
-          setSearchQuery(place.formatted_address);
-          fetchEvents();
-        }
-      });
-
-      setSearchBox(autocomplete);
-    } catch (error) {
-      console.error('Error initializing autocomplete:', error);
-    }
-  };
-
-  // Remove the old useEffect for searchBox initialization
-  useEffect(() => {
-    if (isGoogleMapsLoaded && searchInputRef.current && !searchBox) {
-      initializeAutocomplete();
-    }
-  }, [isGoogleMapsLoaded, searchInputRef.current]);
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -179,44 +122,8 @@ const HomePage: React.FC = () => {
     fetchEvents();
   };
 
-  const handleCreateEvent = async (eventData: Omit<Event, 'id'>) => {
-    try {
-      await createEvent(eventData);
-      setIsCreateModalOpen(false);
-    } catch (error) {
-      console.error('Error creating event:', error);
-    }
-  };
-
-  const handleEditEventSubmit = async (eventId: string, eventData: Partial<Event>) => {
-    try {
-      if (!user) return;
-      await updateEvent(eventId, user.uid, eventData);
-      setIsEditModalOpen(false);
-      setSelectedEvent(null);
-    } catch (error) {
-      console.error('Error updating event:', error);
-    }
-  };
-
-  const handleMarkerClick = (eventId: string) => {
-    const event = events.find(e => e.id === eventId);
-    if (event) {
-      const element = document.getElementById(`event-${eventId}`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
-
   return (
     <div className="homepage">
-      <button className="profile-button" onClick={() => navigate('/profile')}>
-        <FaUserCircle /> Profile
-      </button>
-      <button className="sign-out-button" onClick={handleSignOut}>
-        <FaSignOutAlt /> Sign Out
-      </button>
       <div className="homepage-content">
         <header className="header">
           <h1 className="logo">LinkUp</h1>
@@ -227,12 +134,19 @@ const HomePage: React.FC = () => {
               placeholder="Search by location"
               value={searchQuery}
               onChange={handleSearch}
-              ref={searchInputRef}
             />
           </div>
-          <button className="create-button" onClick={() => setIsCreateModalOpen(true)}>
-            <FaPlus />
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button className="profile-button" onClick={() => navigate('/profile')}>
+              <FaUserCircle /> Profile
+            </button>
+            <button className="sign-out-button" onClick={handleSignOut}>
+              <FaSignOutAlt /> Sign Out
+            </button>
+            <button className="create-button" onClick={() => setIsCreateModalOpen(true)}>
+              <FaPlus />
+            </button>
+          </div>
         </header>
 
         <main className="main-content">
@@ -260,7 +174,7 @@ const HomePage: React.FC = () => {
             </div>
           </aside>
 
-          <section className="events-list">
+          <section className="events-section">
             {isLoading ? (
               <div className="loading">Loading events...</div>
             ) : events.length > 0 ? (
@@ -273,11 +187,11 @@ const HomePage: React.FC = () => {
                       </div>
                       <div className="host-info">
                         <p className="host-name">{event.hostName}</p>
+                        <div className="event-location">
+                          <FaMapMarkerAlt className="location-icon" />
+                          {event.location}
+                        </div>
                       </div>
-                    </div>
-                    <div className="event-location">
-                      <FaMapMarkerAlt className="location-icon" />
-                      {event.location}
                     </div>
                     {user && event.hostId === user.uid && (
                       <div className="event-actions">
@@ -296,13 +210,12 @@ const HomePage: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  
                   <div className="event-content">
                     <h3 className="event-title">{event.title}</h3>
                     <p className="event-description">{event.description}</p>
                     <div className="event-meta">
                       <div className="event-date">
-                        <span className="date-label">Date:</span>
+                        <FaCalendarAlt />
                         {formatDate(event.date)}
                       </div>
                     </div>
