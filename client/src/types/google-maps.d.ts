@@ -42,6 +42,11 @@ declare namespace google.maps {
   interface MapOptions {
     center: LatLng | { lat: number; lng: number };
     zoom: number;
+    disableDefaultUI?: boolean;
+    zoomControl?: boolean;
+    mapTypeControl?: boolean;
+    streetViewControl?: boolean;
+    fullscreenControl?: boolean;
   }
 
   interface MarkerOptions {
@@ -82,6 +87,11 @@ declare namespace google.maps {
 
     interface AutocompleteOptions {
       types?: string[];
+      componentRestrictions?: {
+        country: string | string[];
+      };
+      fields?: string[];
+      strictBounds?: boolean;
     }
 
     interface PlaceResult {
@@ -89,10 +99,14 @@ declare namespace google.maps {
       geometry?: {
         location: LatLng;
       };
+      name?: string;
+      place_id?: string;
+      types?: string[];
     }
   }
 
   namespace event {
     function removeListener(listener: any): void;
+    function clearInstanceListeners(instance: any): void;
   }
 } 

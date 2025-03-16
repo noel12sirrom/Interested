@@ -40,6 +40,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
 };
 
 const App: React.FC = () => {
+  console.log('App component rendering');
   return (
     <AuthProvider>
       <Router>

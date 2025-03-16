@@ -6,7 +6,6 @@ import { getEvents, getEventsByInterests, Event, deleteEvent } from '../firebase
 import CreateEventModal from './CreateEventModal';
 import EditEventModal from './EditEventModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
-import EventMap from './EventMap';
 import '../styles/HomePage.css';
 import { FaSearch, FaPlus, FaUser, FaMapMarkerAlt, FaUserCircle, FaSignOutAlt, FaEdit, FaTrash } from 'react-icons/fa';
 import { auth, db } from '../firebase/config';
@@ -38,9 +37,9 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchBox, setSearchBox] = useState<google.maps.places.Autocomplete | null>(null);
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
 
   const fetchEvents = async () => {
     setIsLoading(true);
@@ -71,21 +70,6 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     fetchEvents();
 
-    // Get user's location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error('Error getting user location:', error);
-        }
-      );
-    }
-
     // Subscribe to events
     const q = query(collection(db, 'events'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -102,40 +86,57 @@ const HomePage: React.FC = () => {
   }, [searchQuery, userProfile?.interests, activeFilter, user]);
 
   useEffect(() => {
-    // Initialize search box
-    if (searchInputRef.current && !searchBox && window.googleMapsLoaded) {
-      const searchBoxInstance = new google.maps.places.Autocomplete(searchInputRef.current, {
-        types: ['address'],
-      });
-      setSearchBox(searchBoxInstance);
+    const checkGoogleMapsLoaded = () => {
+      if (window.google && window.google.maps && window.google.maps.places) {
+        setIsGoogleMapsLoaded(true);
+        initializeAutocomplete();
+      }
+    };
 
-      // Handle place selection
-      searchBoxInstance.addListener('place_changed', () => {
-        const place = searchBoxInstance.getPlace();
+    const handleMapsLoaded = () => {
+      checkGoogleMapsLoaded();
+    };
+
+    // Check if already loaded
+    checkGoogleMapsLoaded();
+
+    // Listen for the load event
+    window.addEventListener('googleMapsLoaded', handleMapsLoaded);
+
+    return () => {
+      window.removeEventListener('googleMapsLoaded', handleMapsLoaded);
+    };
+  }, []);
+
+  const initializeAutocomplete = () => {
+    if (!searchInputRef.current || searchBox) return;
+
+    try {
+      const autocomplete = new google.maps.places.Autocomplete(searchInputRef.current, {
+        types: ['geocode'],
+        fields: ['formatted_address', 'geometry']
+      });
+
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
         if (place.formatted_address) {
           setSearchQuery(place.formatted_address);
+          fetchEvents();
         }
       });
-    } else if (!window.googleMapsLoaded) {
-      // Listen for the Google Maps load event
-      window.addEventListener('googleMapsLoaded', () => {
-        if (searchInputRef.current && !searchBox) {
-          const searchBoxInstance = new google.maps.places.Autocomplete(searchInputRef.current, {
-            types: ['address'],
-          });
-          setSearchBox(searchBoxInstance);
 
-          // Handle place selection
-          searchBoxInstance.addListener('place_changed', () => {
-            const place = searchBoxInstance.getPlace();
-            if (place.formatted_address) {
-              setSearchQuery(place.formatted_address);
-            }
-          });
-        }
-      });
+      setSearchBox(autocomplete);
+    } catch (error) {
+      console.error('Error initializing autocomplete:', error);
     }
-  }, [searchInputRef, searchBox]);
+  };
+
+  // Remove the old useEffect for searchBox initialization
+  useEffect(() => {
+    if (isGoogleMapsLoaded && searchInputRef.current && !searchBox) {
+      initializeAutocomplete();
+    }
+  }, [isGoogleMapsLoaded, searchInputRef.current]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -314,15 +315,6 @@ const HomePage: React.FC = () => {
               </div>
             )}
           </section>
-
-          <div className="map-section">
-            <h2>Event Locations</h2>
-            <EventMap
-              events={events}
-              onMarkerClick={handleMarkerClick}
-              center={userLocation || { lat: 40.7128, lng: -74.0060 }}
-            />
-          </div>
         </main>
       </div>
 

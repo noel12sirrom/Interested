@@ -182,4 +182,67 @@
 
 .delete-button:hover {
   background-color: #b91c1c;
+}
+
+.location-map-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.location-map {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s ease;
+}
+
+.map-loading,
+.map-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 1;
+}
+
+.map-loading p {
+  font-size: 1.2rem;
+  color: #666;
+  margin: 0;
+}
+
+.map-error {
+  background-color: rgba(255, 235, 238, 0.9);
+  padding: 2rem;
+  text-align: center;
+}
+
+.map-error p {
+  color: #d32f2f;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.map-error button {
+  padding: 0.5rem 1rem;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.map-error button:hover {
+  background-color: #1565c0;
 } 

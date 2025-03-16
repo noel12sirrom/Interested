@@ -40,28 +40,48 @@ const Login: React.FC = () => {
   const handleGoogleLogin = async () => {
     setError('');
     setIsLoading(true);
+    console.log('Starting Google login process...');
     
     try {
       const provider = new GoogleAuthProvider();
+      // Add select_account to force account selection
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      
+      console.log('Initializing Google sign-in popup...');
       const result = await signInWithPopup(auth, provider);
+      console.log('Google sign-in successful:', result.user.email);
+      
       const user = result.user;
 
       // Check if user exists in Firestore
+      console.log('Checking if user exists in Firestore...');
       const userDocRef = doc(db, 'users', user.uid);
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
+        console.log('User does not exist in Firestore, signing out...');
         // User doesn't exist, sign them out and show signup message
         await auth.signOut();
         setError('No account found with this Google account. Please sign up first.');
         return;
       }
 
+      console.log('User exists in Firestore, navigating to profile...');
       navigate('/profile');
     } catch (error: any) {
       console.error('Google login error:', error);
-      if (error.code === 'auth/account-exists-with-different-credential') {
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in popup was closed. Please try again.');
+      } else if (error.code === 'auth/popup-blocked') {
+        setError('Sign-in popup was blocked. Please allow popups for this site and try again.');
+      } else if (error.code === 'auth/account-exists-with-different-credential') {
         setError('This email is already registered with a different method. Please log in with your original signup method.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        setError('Multiple popup requests were made. Please try again.');
+      } else if (error.code === 'auth/network-request-failed') {
+        setError('Network error occurred. Please check your internet connection and try again.');
       } else {
         setError(error.message || 'Failed to log in with Google');
       }

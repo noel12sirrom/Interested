@@ -34,6 +34,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
   const [hasProfile, setHasProfile] = useState(false);
 
+  console.log('AuthProvider rendering, loading state:', loading);
+
   const checkUserProfile = async (userToCheck?: User | null) => {
     const currentUser = userToCheck || user;
     console.log('Checking user profile...', currentUser?.uid);
