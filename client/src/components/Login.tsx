@@ -1,47 +1,32 @@
-import { useState, FormEvent } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signInWithEmail, signInWithGoogle } from '../firebase/authService';
 import '../styles/Login.css';
 
-interface LoginProps {
-  onLogin: (email: string, password: string) => Promise<void>;
-}
-
-const Login = ({ onLogin }: LoginProps) => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+const Login: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
     try {
-      await onLogin(formData.email, formData.password);
-      navigate('/profile');
-    } catch (err) {
-      setError('Invalid email or password');
-    } finally {
-      setIsLoading(false);
+      await signInWithEmail(email, password);
+      navigate('/');
+    } catch (error: any) {
+      setError(error.message);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSocialLogin = (provider: string) => {
-    // TODO: Implement social login
-    console.log(`Logging in with ${provider}`);
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+      navigate('/');
+    } catch (error: any) {
+      setError(error.message);
+    }
   };
 
   return (
@@ -56,88 +41,46 @@ const Login = ({ onLogin }: LoginProps) => {
       <div className="login-form-container">
         <div className="login-card">
           <img src="/logo.png" alt="Logo" className="brand-logo" />
-          <h2>Sign in to your account</h2>
+          <h2>Welcome Back</h2>
           <p className="subtitle">Welcome back! Please enter your details.</p>
 
           {error && <div className="error-message">{error}</div>}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleEmailLogin}>
             <div className="form-group">
               <label htmlFor="email">Email</label>
               <input
                 type="email"
                 id="email"
-                name="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input
                 type="password"
                 id="password"
-                name="password"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
-
-            <div className="remember-forgot">
-              <label className="remember-me">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                Remember me
-              </label>
-              <a href="#" className="forgot-password">Forgot password?</a>
-            </div>
-
-            <button 
-              type="submit" 
-              className="login-button"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+            <button type="submit" className="login-button">
+              Log In
             </button>
-
-            <div className="divider">
-              <span>Or continue with</span>
-            </div>
-
-            <div className="social-login">
-              <button
-                type="button"
-                className="social-button"
-                onClick={() => handleSocialLogin('google')}
-              >
-                Google
-              </button>
-              <button
-                type="button"
-                className="social-button"
-                onClick={() => handleSocialLogin('github')}
-              >
-                GitHub
-              </button>
-            </div>
           </form>
+
+          <div className="divider">or</div>
+
+          <button onClick={handleGoogleLogin} className="google-button">
+            Continue with Google
+          </button>
 
           <p className="signup-link">
             Don't have an account?{' '}
-            <button 
-              className="text-button"
-              onClick={() => navigate('/signup')}
-            >
-              Sign up
-            </button>
+            <span onClick={() => navigate('/signup')}>Sign Up</span>
           </p>
         </div>
       </div>

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import '../styles/HomePage.css';
 import { FaSearch, FaPlus, FaUser, FaMapMarkerAlt } from 'react-icons/fa';
+import axios from 'axios';
 
 interface Event {
   id: string;
@@ -13,7 +14,18 @@ interface Event {
 
 const HomePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [corsTest, setCorsTest] = useState<string>('');
   
+  const testCors = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/api/test-cors');
+      setCorsTest(response.data.message);
+    } catch (error) {
+      console.error('CORS Test Error:', error);
+      setCorsTest('CORS test failed');
+    }
+  };
+
   // Mock data - replace with actual data from Firebase
   const events: Event[] = [
     {
@@ -59,9 +71,10 @@ const HomePage: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <button className="create-button">
+        <button className="create-button" onClick={testCors}>
           <FaPlus />
         </button>
+        {corsTest && <div className="cors-test-result">{corsTest}</div>}
       </header>
 
       <main className="main-content">
