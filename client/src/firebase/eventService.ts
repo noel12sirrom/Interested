@@ -1,6 +1,13 @@
 import { collection, query, where, getDocs, orderBy, limit, Query, addDoc, serverTimestamp, doc, updateDoc, arrayUnion, getDoc, deleteDoc, Timestamp, DocumentData } from 'firebase/firestore';
 import { db } from './config';
 
+interface LinkRequest {
+  userId: string;
+  userName: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  timestamp: Date;
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -13,19 +20,10 @@ export interface Event {
   hostName: string;
   interests: string[];
   createdAt: Date;
+  linkRequests?: { [userId: string]: LinkRequest };
 }
 
-export interface CreateEventData {
-  title: string;
-  description: string;
-  location: string;
-  coordinates?: [number, number] | null;
-  date: Date;
-  time: string;
-  hostId: string;
-  hostName: string;
-  interests: string[];
-}
+export type CreateEventData = Omit<Event, 'id' | 'createdAt'>;
 
 export const createEvent = async (eventData: CreateEventData): Promise<string> => {
   try {
@@ -199,6 +197,55 @@ export const updateEvent = async (
     await updateDoc(eventRef, updateData);
   } catch (error) {
     console.error('Error updating event:', error);
+    throw error;
+  }
+};
+
+export const sendLinkRequest = async (eventId: string, userId: string, userName: string) => {
+  try {
+    const eventRef = doc(db, 'events', eventId);
+    const linkRequest: LinkRequest = {
+      userId,
+      userName,
+      status: 'pending',
+      timestamp: new Date()
+    };
+
+    await updateDoc(eventRef, {
+      [`linkRequests.${userId}`]: linkRequest
+    });
+  } catch (error) {
+    console.error('Error sending link request:', error);
+    throw error;
+  }
+};
+
+export const respondToLinkRequest = async (eventId: string, userId: string, status: 'accepted' | 'rejected') => {
+  try {
+    const eventRef = doc(db, 'events', eventId);
+    await updateDoc(eventRef, {
+      [`linkRequests.${userId}.status`]: status
+    });
+  } catch (error) {
+    console.error('Error responding to link request:', error);
+    throw error;
+  }
+};
+
+export const getLinkRequestStatus = async (eventId: string, userId: string): Promise<'none' | 'pending' | 'accepted' | 'rejected'> => {
+  try {
+    const eventDoc = await getDoc(doc(db, 'events', eventId));
+    if (!eventDoc.exists()) {
+      throw new Error('Event not found');
+    }
+
+    const data = eventDoc.data();
+    const linkRequests = data.linkRequests || {};
+    const request = linkRequests[userId];
+
+    return request ? request.status : 'none';
+  } catch (error) {
+    console.error('Error getting link request status:', error);
     throw error;
   }
 }; 

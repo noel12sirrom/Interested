@@ -68,12 +68,32 @@
 }
 
 .error-message {
-  background-color: #fee2e2;
-  color: #dc2626;
-  padding: 0.8rem;
-  border-radius: 6px;
+  color: var(--error-color);
   margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  background-color: var(--error-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.error-action-button {
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
   font-size: 0.9rem;
+  width: fit-content;
+}
+
+.error-action-button:hover {
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .success-message {

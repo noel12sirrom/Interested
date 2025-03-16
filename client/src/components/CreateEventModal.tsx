@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { createEvent, CreateEventData } from '../firebase/eventService';
 import { getCoordinates } from '../utils/geocoding';
@@ -13,6 +14,7 @@ interface CreateEventModalProps {
 }
 
 const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, userId, onEventCreated }) => {
+  const navigate = useNavigate();
   const { user, userProfile } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -22,18 +24,26 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showInterestsPrompt, setShowInterestsPrompt] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    setIsLoading(true);
+    setShowInterestsPrompt(false);
 
     if (!user || !userProfile) {
       setError('You must be logged in to create an event');
-      setIsLoading(false);
       return;
     }
+
+    if (!userProfile.interests || userProfile.interests.length === 0) {
+      setShowInterestsPrompt(true);
+      setError('Please select at least one interest before creating an event');
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       const eventDateTime = new Date(`${date}T${time}`);
@@ -131,7 +141,20 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
             </div>
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <div className="error-message">
+              {error}
+              {showInterestsPrompt && (
+                <button
+                  type="button"
+                  className="error-action-button"
+                  onClick={() => navigate('/profile')}
+                >
+                  Go to Profile to Add Interests
+                </button>
+              )}
+            </div>
+          )}
           {success && <div className="success-message">{success}</div>}
 
           <div className="modal-actions">
@@ -148,4 +171,4 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
   );
 };
 
-export default CreateEventModal; 
+export default CreateEventModal;

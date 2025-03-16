@@ -150,16 +150,59 @@
 .location-info {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary);
+  gap: 8px;
+  margin-top: 8px;
+  position: relative;
 }
 
-.location-input {
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  width: 100%;
+.location-icon {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+}
+
+.location-info .location-autocomplete {
+  flex: 1;
   max-width: 300px;
+}
+
+.location-info .location-input {
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  font-size: 1rem;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.location-info .location-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.location-info .suggestions-list {
+  position: absolute;
+  left: 24px;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  max-width: 300px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--box-shadow);
+  z-index: 1000;
+}
+
+.location-info .suggestions-list li {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.location-info .suggestions-list li:hover {
+  background-color: var(--primary-light);
 }
 
 .profile-content {

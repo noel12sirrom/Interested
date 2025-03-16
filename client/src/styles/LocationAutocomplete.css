@@ -5,43 +5,79 @@
 
 .location-input {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 1rem;
   background-color: var(--bg-secondary);
   color: var(--text-primary);
+  transition: all 0.2s ease;
 }
 
 .location-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px var(--primary-light);
+  box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 .suggestions-list {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
-  margin-top: 4px;
-  padding: 0;
+  margin: 0;
+  padding: 8px 0;
   list-style: none;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background-color: white;
   border-radius: var(--radius-md);
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  max-height: 200px;
+  max-height: 300px;
   overflow-y: auto;
+  border: 1px solid var(--border-color);
 }
 
 .suggestions-list li {
-  padding: 8px 12px;
+  padding: 12px 16px;
   cursor: pointer;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.suggestions-list li::before {
+  content: '📍';
+  font-size: 1.1rem;
+  opacity: 0.7;
 }
 
 .suggestions-list li:hover {
-  background-color: var(--bg-hover);
+  background-color: var(--primary-light);
+  padding-left: 20px;
+}
+
+.suggestions-list li:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Scrollbar styling */
+.suggestions-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.suggestions-list::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 } 

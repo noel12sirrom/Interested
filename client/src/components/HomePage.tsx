@@ -7,10 +7,12 @@ import CreateEventModal from './CreateEventModal';
 import EditEventModal from './EditEventModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import LocationAutocomplete from './LocationAutocomplete';
+import NotificationBell from './NotificationBell';
 import '../styles/HomePage.css';
 import { FaSearch, FaPlus, FaUser, FaMapMarkerAlt, FaUserCircle, FaSignOutAlt, FaEdit, FaTrash, FaCalendarAlt } from 'react-icons/fa';
 import { auth, db } from '../firebase/config';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import LinkRequestButton from './LinkRequestButton';
 
 type EventFilter = 'all' | 'my' | 'interests';
 
@@ -161,6 +163,7 @@ const HomePage: React.FC = () => {
             />
           </div>
           <div className="header-actions">
+            <NotificationBell />
             <button className="profile-link" onClick={() => navigate('/profile')}>
               <FaUserCircle /> Profile
             </button>
@@ -217,7 +220,7 @@ const HomePage: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    {user && event.hostId === user.uid && (
+                    {user && (event.hostId === user.uid ? (
                       <div className="event-actions">
                         <button
                           className="edit-button"
@@ -232,7 +235,15 @@ const HomePage: React.FC = () => {
                           <FaTrash />
                         </button>
                       </div>
-                    )}
+                    ) : (
+                      <div className="event-actions">
+                        <LinkRequestButton 
+                          eventId={event.id} 
+                          hostId={event.hostId} 
+                          eventTitle={event.title}
+                        />
+                      </div>
+                    ))}
                   </div>
                   <div className="event-content">
                     <h3 className="event-title">{event.title}</h3>

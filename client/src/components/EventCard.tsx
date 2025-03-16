@@ -2,6 +2,7 @@ import React from 'react';
 import { Event } from '../firebase/eventService';
 import { useAuth } from '../contexts/AuthContext';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import LinkRequestButton from './LinkRequestButton';
 import '../styles/EventCard.css';
 
 interface EventCardProps {
@@ -12,7 +13,7 @@ interface EventCardProps {
 
 const EventCard: React.FC<EventCardProps> = ({ event, onEdit, onDelete }) => {
   const { user } = useAuth();
-  const isOwner = user?.uid === event.userId;
+  const isOwner = user?.uid === event.hostId;
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -26,24 +27,32 @@ const EventCard: React.FC<EventCardProps> = ({ event, onEdit, onDelete }) => {
     <div className="event-card">
       <div className="event-header">
         <h3>{event.title}</h3>
-        {isOwner && (
-          <div className="event-actions">
-            <button 
-              className="icon-button edit"
-              onClick={() => onEdit(event)}
-              title="Edit event"
-            >
-              <FaEdit />
-            </button>
-            <button 
-              className="icon-button delete"
-              onClick={() => onDelete(event.id)}
-              title="Delete event"
-            >
-              <FaTrash />
-            </button>
-          </div>
-        )}
+        <div className="event-actions">
+          {isOwner ? (
+            <>
+              <button 
+                className="icon-button edit"
+                onClick={() => onEdit(event)}
+                title="Edit event"
+              >
+                <FaEdit />
+              </button>
+              <button 
+                className="icon-button delete"
+                onClick={() => onDelete(event.id)}
+                title="Delete event"
+              >
+                <FaTrash />
+              </button>
+            </>
+          ) : (
+            <LinkRequestButton 
+              eventId={event.id} 
+              hostId={event.hostId} 
+              eventTitle={event.title}
+            />
+          )}
+        </div>
       </div>
       <p className="event-description">{event.description}</p>
       <div className="event-details">

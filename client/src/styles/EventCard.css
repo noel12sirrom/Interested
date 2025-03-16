@@ -17,11 +17,14 @@
   margin: 0;
   font-size: 1.25rem;
   color: #333;
+  flex: 1;
+  margin-right: 1rem;
 }
 
 .event-actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .icon-button {
@@ -55,6 +58,7 @@
 .event-description {
   color: #666;
   margin-bottom: 1rem;
+  line-height: 1.5;
 }
 
 .event-details {
@@ -63,8 +67,12 @@
 
 .event-details p {
   margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .event-details strong {
   color: #333;
+  min-width: 80px;
 } 

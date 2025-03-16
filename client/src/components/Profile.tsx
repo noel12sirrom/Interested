@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { updateUserProfile, uploadProfilePicture } from '../firebase/userService';
+import LocationAutocomplete from './LocationAutocomplete';
 import '../styles/Profile.css';
 import { FaUser, FaMapMarkerAlt, FaHeart, FaEdit, FaSave, FaCamera, FaTimes, FaHome } from 'react-icons/fa';
 
@@ -184,12 +185,11 @@ const Profile: React.FC = () => {
             <div className="location-info">
               <FaMapMarkerAlt className="location-icon" />
               {isEditing ? (
-                <input
-                  type="text"
+                <LocationAutocomplete
                   value={profile.location}
-                  onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+                  onChange={(value) => setProfile({ ...profile, location: value })}
                   placeholder="Add your location"
-                  className="location-input"
+                  required={false}
                 />
               ) : (
                 <span>{profile.location || 'Add your location'}</span>
