@@ -32,44 +32,55 @@
 }
 
 .search-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  max-width: 400px;
-  width: 100%;
-  background-color: var(--bg-secondary);
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 0.5rem 1rem;
-  transition: all var(--transition-normal);
-}
-
-.search-bar:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 4px var(--primary-light);
+  position: relative;
+  flex: 1;
+  max-width: 600px;
+  margin: 0 2rem;
 }
 
 .search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--text-secondary);
   font-size: 1.2rem;
+  z-index: 1;
 }
 
-.search-input {
-  flex: 1;
-  border: none;
-  background: none;
-  padding: 0.5rem;
-  font-size: var(--font-size-md);
-  color: var(--text-primary);
+.search-bar .location-input {
   width: 100%;
+  padding: 12px 16px 12px 48px;
+  border: 2px solid transparent;
+  border-radius: 50px;
+  background-color: var(--bg-secondary);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.search-input:focus {
+.search-bar .location-input:focus {
   outline: none;
+  border-color: var(--primary-color);
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.search-input::placeholder {
-  color: var(--text-secondary);
+.search-bar .suggestions-list {
+  margin-top: 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: none;
+  overflow: hidden;
+}
+
+.search-bar .suggestions-list li {
+  padding: 12px 16px;
+  transition: background-color 0.2s ease;
+}
+
+.search-bar .suggestions-list li:hover {
+  background-color: var(--primary-light);
 }
 
 .create-event-button {
@@ -475,4 +486,26 @@
 
 .pac-item-selected {
   background-color: #e8f0fe;
+}
+
+.map-container {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--box-shadow);
+}
+
+.map-container h2 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+}
+
+/* Make sure the map container is properly sized on mobile */
+@media (max-width: 768px) {
+  .map-container {
+    margin: 1rem -1rem;
+    border-radius: 0;
+  }
 } 

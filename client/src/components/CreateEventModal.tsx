@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { createEvent, CreateEventData } from '../firebase/eventService';
+import { getCoordinates } from '../utils/geocoding';
+import LocationAutocomplete from './LocationAutocomplete';
 import '../styles/CreateEventModal.css';
 
 interface CreateEventModalProps {
@@ -35,11 +37,13 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
 
     try {
       const eventDateTime = new Date(`${date}T${time}`);
+      const coordinates = await getCoordinates(location);
       
       const eventData: CreateEventData = {
         title,
         description,
         location,
+        coordinates,
         hostId: user.uid,
         hostName: userProfile.displayName,
         interests: userProfile.interests,
@@ -95,11 +99,9 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, us
 
           <div className="form-group">
             <label htmlFor="location">Location</label>
-            <input
-              type="text"
-              id="location"
+            <LocationAutocomplete
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={setLocation}
               placeholder="Enter event location"
               required
             />

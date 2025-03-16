@@ -6,15 +6,26 @@ export interface Event {
   title: string;
   description: string;
   location: string;
+  coordinates?: [number, number]; // latitude and longitude
+  date: Date;
+  time: string;
   hostId: string;
   hostName: string;
   interests: string[];
   createdAt: Date;
-  date: Date;
-  time: string;
 }
 
-export type CreateEventData = Omit<Event, 'id' | 'createdAt'>;
+export interface CreateEventData {
+  title: string;
+  description: string;
+  location: string;
+  coordinates?: [number, number] | null;
+  date: Date;
+  time: string;
+  hostId: string;
+  hostName: string;
+  interests: string[];
+}
 
 export const createEvent = async (eventData: CreateEventData): Promise<string> => {
   try {

@@ -6,6 +6,7 @@ import { getEvents, getEventsByInterests, Event, deleteEvent } from '../firebase
 import CreateEventModal from './CreateEventModal';
 import EditEventModal from './EditEventModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
+import LocationAutocomplete from './LocationAutocomplete';
 import '../styles/HomePage.css';
 import { FaSearch, FaPlus, FaUser, FaMapMarkerAlt, FaUserCircle, FaSignOutAlt, FaEdit, FaTrash, FaCalendarAlt } from 'react-icons/fa';
 import { auth, db } from '../firebase/config';
@@ -153,12 +154,10 @@ const HomePage: React.FC = () => {
           <h1 className="logo">LinkUp</h1>
           <div className="search-bar">
             <FaSearch className="search-icon" />
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search by location..."
+            <LocationAutocomplete
               value={searchQuery}
-              onChange={handleSearch}
+              onChange={setSearchQuery}
+              placeholder="Search by location..."
             />
           </div>
           <div className="header-actions">
