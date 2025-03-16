@@ -4,12 +4,13 @@ import { getAuth } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyBDnRBNWRHtUQsM_RJNSFUL-SU-ALAtl8A",
+    authDomain: "linkup-c3274.firebaseapp.com",
+    databaseURL: "https://linkup-c3274-default-rtdb.firebaseio.com",
+    projectId: "linkup-c3274",
+    storageBucket: "linkup-c3274.firebasestorage.app",
+    messagingSenderId: "618853464271",
+    appId: "1:618853464271:web:0c434109eaffb2edf11fba"
 };
 
 // Initialize Firebase
