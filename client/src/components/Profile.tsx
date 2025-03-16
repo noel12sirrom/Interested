@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { updateUserProfile } from '../firebase/userService';
+import { updateUserProfile, uploadProfilePicture } from '../firebase/userService';
 import '../styles/Profile.css';
 import { FaUser, FaMapMarkerAlt, FaHeart, FaEdit, FaSave, FaCamera, FaTimes, FaHome } from 'react-icons/fa';
 
@@ -17,6 +17,8 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [profile, setProfile] = useState({
     name: '',
     location: '',
@@ -94,6 +96,26 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0] || !userProfile) return;
+
+    const file = e.target.files[0];
+    setUploadingPhoto(true);
+
+    try {
+      await uploadProfilePicture(userProfile.uid, file);
+      await checkUserProfile(); // Refresh the profile to get the new photo URL
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   if (!userProfile) {
     return <div className="loading">Loading...</div>;
   }
@@ -106,15 +128,28 @@ const Profile: React.FC = () => {
       <div className="profile-container">
         <div className="profile-header">
           <div className="profile-picture">
-            {userProfile.profilePicture ? (
+            {userProfile?.profilePicture ? (
               <img src={userProfile.profilePicture} alt="Profile" className="avatar-image" />
             ) : (
               <FaUser className="avatar-icon" />
             )}
             {isEditing && (
-              <button className="change-photo-button">
-                <FaCamera /> Change Photo
-              </button>
+              <>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handlePhotoUpload}
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                />
+                <button 
+                  className="change-photo-button"
+                  onClick={triggerFileInput}
+                  disabled={uploadingPhoto}
+                >
+                  <FaCamera /> {uploadingPhoto ? 'Uploading...' : 'Change Photo'}
+                </button>
+              </>
             )}
           </div>
           <div className="profile-info">

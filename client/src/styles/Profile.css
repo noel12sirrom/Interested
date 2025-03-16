@@ -3,7 +3,7 @@
 .profile-page {
   min-height: 100vh;
   padding: 2rem;
-  background-color: #f8f9fa;
+  background-color: var(--bg-primary);
 }
 
 .home-button {
@@ -11,26 +11,28 @@
   top: 1rem;
   left: 1rem;
   padding: 0.5rem 1rem;
-  background-color: #fff;
-  border: 1px solid #dee2e6;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  color: var(--text-secondary);
 }
 
 .home-button:hover {
-  background-color: #f8f9fa;
+  background-color: var(--bg-hover);
+  color: var(--primary-color);
 }
 
 .profile-container {
   max-width: 800px;
   margin: 0 auto;
-  background-color: #fff;
+  background-color: var(--bg-secondary);
   border-radius: 1rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  box-shadow: var(--box-shadow);
   overflow: hidden;
 }
 
@@ -39,7 +41,7 @@
   display: flex;
   align-items: flex-start;
   gap: 2rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .profile-picture {
@@ -48,7 +50,7 @@
   height: 150px;
   border-radius: 50%;
   overflow: hidden;
-  background-color: #f8f9fa;
+  background-color: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,7 +64,7 @@
 
 .avatar-icon {
   font-size: 4rem;
-  color: #adb5bd;
+  color: var(--text-light);
 }
 
 .change-photo-button {
@@ -72,7 +74,7 @@
   right: 0;
   padding: 0.5rem;
   background-color: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  color: var(--bg-secondary);
   border: none;
   cursor: pointer;
   display: flex;
@@ -100,13 +102,13 @@
 .profile-header-info h1 {
   margin: 0;
   font-size: 2rem;
-  color: #212529;
+  color: var(--text-primary);
 }
 
 .name-input {
   font-size: 2rem;
   padding: 0.5rem;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   width: 100%;
   max-width: 400px;
@@ -127,33 +129,34 @@
 }
 
 .edit-button {
-  background-color: #e9ecef;
-  color: #495057;
+  background-color: var(--bg-hover);
+  color: var(--text-secondary);
 }
 
 .save-button {
-  background-color: #228be6;
-  color: #fff;
+  background-color: var(--primary-color);
+  color: var(--bg-secondary);
 }
 
 .edit-button:hover {
-  background-color: #dee2e6;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
 }
 
 .save-button:hover {
-  background-color: #1c7ed6;
+  background-color: var(--primary-dark);
 }
 
 .location-info {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #6c757d;
+  color: var(--text-secondary);
 }
 
 .location-input {
   padding: 0.5rem;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   width: 100%;
   max-width: 300px;
@@ -169,20 +172,20 @@
 
 .profile-section h2 {
   margin-bottom: 1rem;
-  color: #495057;
+  color: var(--text-primary);
 }
 
 .bio-input {
   width: 100%;
   min-height: 150px;
   padding: 1rem;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   resize: vertical;
 }
 
 .bio {
-  color: #6c757d;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -195,7 +198,7 @@
 
 .edit-interests-button {
   padding: 0.5rem 1rem;
-  background-color: #e9ecef;
+  background-color: var(--bg-hover);
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
@@ -203,10 +206,12 @@
   align-items: center;
   gap: 0.5rem;
   transition: all 0.2s ease;
+  color: var(--text-secondary);
 }
 
 .edit-interests-button:hover {
-  background-color: #dee2e6;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
 }
 
 .selected-interests {
@@ -217,13 +222,13 @@
 
 .interest-tag {
   padding: 0.5rem 1rem;
-  background-color: #e9ecef;
+  background-color: var(--primary-light);
   border-radius: 2rem;
-  color: #495057;
+  color: var(--primary-color);
 }
 
 .no-interests {
-  color: #adb5bd;
+  color: var(--text-light);
 }
 
 .modal-overlay {
@@ -240,38 +245,38 @@
 }
 
 .interest-modal {
-  background-color: #fff;
+  background-color: var(--bg-secondary);
   border-radius: 1rem;
   padding: 2rem;
   width: 90%;
   max-width: 600px;
-  max-height: 80vh;
-  overflow-y: auto;
+  box-shadow: var(--box-shadow);
 }
 
 .modal-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: #212529;
+  color: var(--text-primary);
 }
 
 .close-button {
   background: none;
   border: none;
-  font-size: 1.5rem;
-  color: #adb5bd;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 1.25rem;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
 }
 
 .close-button:hover {
-  color: #495057;
+  color: var(--primary-color);
 }
 
 .interests-grid {
@@ -283,21 +288,23 @@
 
 .interest-button {
   padding: 0.75rem;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
-  background-color: #fff;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .interest-button:hover {
-  background-color: #f8f9fa;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .interest-button.selected {
-  background-color: #228be6;
-  color: #fff;
-  border-color: #228be6;
+  background-color: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .modal-actions {
@@ -306,31 +313,32 @@
   gap: 1rem;
 }
 
-.cancel-button,
-.save-button {
-  padding: 0.75rem 1.5rem;
-  border: none;
+.cancel-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.cancel-button {
-  background-color: #e9ecef;
-  color: #495057;
+.cancel-button:hover {
+  background-color: var(--bg-hover);
 }
 
 .save-button {
-  background-color: #228be6;
-  color: #fff;
-}
-
-.cancel-button:hover {
-  background-color: #dee2e6;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: var(--primary-color);
+  color: var(--bg-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .save-button:hover {
-  background-color: #1c7ed6;
+  background-color: var(--primary-dark);
 }
 
 @media (max-width: 768px) {

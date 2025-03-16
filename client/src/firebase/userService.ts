@@ -1,5 +1,6 @@
-import { db } from './config';
+import { db, storage } from './config';
 import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, DocumentData } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { User } from 'firebase/auth';
 
 export interface UserProfile {
@@ -248,4 +249,29 @@ export async function getMatchDetails(
     console.error('Error getting match details:', error);
     throw error;
   }
-} 
+}
+
+export const uploadProfilePicture = async (uid: string, file: File): Promise<string> => {
+  try {
+    // Create a reference to the file in Firebase Storage
+    const storageRef = ref(storage, `profile-pictures/${uid}`);
+    
+    // Upload the file
+    await uploadBytes(storageRef, file);
+    
+    // Get the download URL
+    const downloadURL = await getDownloadURL(storageRef);
+    
+    // Update the user profile with the new picture URL
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, {
+      profilePicture: downloadURL,
+      updatedAt: new Date().toISOString()
+    });
+    
+    return downloadURL;
+  } catch (error) {
+    console.error('Error uploading profile picture:', error);
+    throw error;
+  }
+}; 

@@ -1,12 +1,14 @@
+@import './variables.css';
+
 .signup-container {
   min-height: 100vh;
   display: flex;
-  background-color: #ffffff;
+  background-color: var(--bg-primary);
 }
 
 .signup-image {
   flex: 1;
-  background: linear-gradient(135deg, #0066cc 0%, #003366 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   display: none;
 }
 
@@ -16,7 +18,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--bg-secondary);
     padding: 2rem;
   }
 
@@ -25,13 +27,13 @@
   }
 
   .signup-image h1 {
-    font-size: 3rem;
+    font-size: var(--font-size-xl);
     margin-bottom: 1.5rem;
     font-weight: 700;
   }
 
   .signup-image p {
-    font-size: 1.2rem;
+    font-size: var(--font-size-lg);
     opacity: 0.9;
     line-height: 1.6;
   }
@@ -43,16 +45,16 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background-color: #f8f9fa;
+  background-color: var(--bg-primary);
 }
 
 .signup-card {
   width: 100%;
   max-width: 400px;
   padding: 2.5rem;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--box-shadow);
 }
 
 .brand-logo {
@@ -62,17 +64,17 @@
 }
 
 .signup-card h2 {
-  font-size: 1.75rem;
-  color: #1a1a1a;
+  font-size: var(--font-size-xl);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   font-weight: 600;
   text-align: center;
 }
 
 .subtitle {
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 2rem;
-  font-size: 1rem;
+  font-size: var(--font-size-md);
   text-align: center;
 }
 
@@ -82,8 +84,8 @@
 
 .form-group label {
   display: block;
-  color: #4a4a4a;
-  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
@@ -91,51 +93,51 @@
 .form-group input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid #e1e1e1;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.2s;
-  background-color: #f8f9fa;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  transition: all var(--transition-normal);
+  background-color: var(--bg-primary);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #0066cc;
-  background-color: white;
-  box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
+  border-color: var(--primary-color);
+  background-color: var(--bg-secondary);
+  box-shadow: 0 0 0 4px var(--primary-light);
 }
 
 .error-message {
-  color: #dc3545;
-  font-size: 0.85rem;
+  color: var(--error-color);
+  font-size: var(--font-size-sm);
   margin-bottom: 1rem;
   text-align: center;
   padding: 0.75rem;
   background-color: rgba(220, 53, 69, 0.1);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   border: 1px solid rgba(220, 53, 69, 0.2);
 }
 
 .signup-button {
   width: 100%;
   padding: 0.875rem;
-  background: #0066cc;
-  color: white;
+  background: var(--primary-color);
+  color: var(--bg-secondary);
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
 }
 
 .signup-button:hover:not(:disabled) {
-  background: #0052a3;
+  background: var(--primary-dark);
   transform: translateY(-1px);
 }
 
 .signup-button:disabled {
-  background-color: #99c2ff;
+  background-color: var(--primary-light);
   cursor: not-allowed;
 }
 
@@ -154,7 +156,7 @@
   top: 50%;
   width: calc(50% - 30px);
   height: 1px;
-  background-color: #e1e1e1;
+  background-color: var(--border-color);
 }
 
 .divider::before {
@@ -166,10 +168,10 @@
 }
 
 .divider span {
-  background-color: white;
+  background-color: var(--bg-secondary);
   padding: 0 1rem;
-  color: #666;
-  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
   position: relative;
   z-index: 1;
   display: inline-block;
@@ -180,14 +182,14 @@
 .google-button {
   width: 100%;
   padding: 0.875rem;
-  background: white;
-  color: #4a4a4a;
-  border: 2px solid #e1e1e1;
-  border-radius: 8px;
-  font-size: 1rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -196,25 +198,25 @@
 }
 
 .google-button:hover:not(:disabled) {
-  background-color: #f8f9fa;
-  border-color: #d1d1d1;
+  background-color: var(--bg-hover);
+  border-color: var(--border-light);
 }
 
 .google-button:disabled {
-  background-color: #f8f9fa;
-  border-color: #e1e1e1;
+  background-color: var(--bg-hover);
+  border-color: var(--border-color);
   cursor: not-allowed;
 }
 
 .login-link {
   text-align: center;
   margin-top: 1.5rem;
-  color: #666;
-  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 .login-link span {
-  color: #0066cc;
+  color: var(--primary-color);
   cursor: pointer;
   font-weight: 500;
   margin-left: 0.25rem;
@@ -227,7 +229,7 @@
 .text-button {
   background: none;
   border: none;
-  color: #0066cc;
+  color: var(--primary-color);
   font-weight: 500;
   cursor: pointer;
   padding: 0;

@@ -1,24 +1,26 @@
+@import './variables.css';
+
 .homepage {
   min-height: 100vh;
-  background-color: #f0f2f5;
-  padding: 20px;
+  background-color: var(--bg-primary);
+  padding: 2rem;
 }
 
 .homepage-content {
   max-width: 1200px;
   margin: 0 auto;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-secondary);
+  border-radius: 1rem;
+  box-shadow: var(--box-shadow);
   overflow: hidden;
 }
 
 .header {
+  padding: 2rem;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #e1e4e8;
-  background-color: #fff;
 }
 
 .logo {
@@ -30,89 +32,79 @@
 }
 
 .search-bar {
-  flex: 1;
   display: flex;
   align-items: center;
+  gap: 1rem;
   max-width: 400px;
-  background-color: #f5f7f9;
-  border-radius: 8px;
-  padding: 8px 16px;
-  margin-right: 20px;
-}
-
-.search-icon {
-  color: #8e9ba7;
-  margin-right: 12px;
-}
-
-.search-bar input {
-  border: none;
-  background: none;
   width: 100%;
-  font-size: 14px;
-  color: #1a1f36;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.search-input:focus {
   outline: none;
+  border-color: var(--primary-color);
 }
 
-.search-bar input::placeholder {
-  color: #8e9ba7;
+.header-actions {
+  display: flex;
+  gap: 1rem;
 }
 
-.profile-button,
-.sign-out-button {
-  background: none;
-  border: none;
-  padding: 8px 16px;
-  font-size: 14px;
-  color: #5e6c84;
-  cursor: pointer;
+.create-event-button,
+.profile-link {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 8px;
-  transition: color 0.2s;
-}
-
-.profile-button:hover,
-.sign-out-button:hover {
-  color: #2196f3;
-}
-
-.create-button {
-  background-color: #2196f3;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px;
+  gap: 0.5rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
-.create-button:hover {
-  background-color: #1976d2;
+.create-event-button {
+  background-color: var(--primary-color);
+  color: var(--bg-secondary);
+  border: none;
+}
+
+.create-event-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.profile-link {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.profile-link:hover {
+  background-color: var(--bg-hover);
+  color: var(--primary-color);
 }
 
 .main-content {
+  padding: 2rem;
   display: flex;
-  padding: 24px;
-  gap: 24px;
+  gap: 2rem;
 }
 
 .filters {
-  width: 240px;
-  flex-shrink: 0;
+  width: 250px;
+  padding-right: 2rem;
+  border-right: 1px solid var(--border-color);
 }
 
 .filters h2 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1a1f36;
-  margin-bottom: 16px;
-}
-
-.filter-options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
 }
 
 .filter-button {
@@ -121,20 +113,21 @@
   padding: 8px 16px;
   text-align: left;
   font-size: 14px;
-  color: #5e6c84;
+  color: var(--text-secondary);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  width: 100%;
 }
 
 .filter-button:hover {
-  background-color: #f5f7f9;
-  color: #2196f3;
+  background-color: var(--bg-hover);
+  color: var(--primary-color);
 }
 
 .filter-button.active {
-  background-color: #e3f2fd;
-  color: #2196f3;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
   font-weight: 500;
 }
 
@@ -146,20 +139,20 @@
 }
 
 .event-card {
-  background-color: #fff;
+  background-color: var(--bg-secondary);
   border-radius: 12px;
-  border: 1px solid #e1e4e8;
+  border: 1px solid var(--border-color);
   overflow: hidden;
   transition: box-shadow 0.2s;
 }
 
 .event-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--hover-shadow);
 }
 
 .event-header {
   padding: 16px;
-  border-bottom: 1px solid #e1e4e8;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -174,12 +167,12 @@
 .host-avatar {
   width: 36px;
   height: 36px;
-  background-color: #e3f2fd;
+  background-color: var(--primary-light);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2196f3;
+  color: var(--primary-color);
 }
 
 .host-info {
@@ -190,7 +183,7 @@
 .host-name {
   font-size: 14px;
   font-weight: 500;
-  color: #1a1f36;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -199,7 +192,7 @@
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #5e6c84;
+  color: var(--text-secondary);
 }
 
 .event-content {
@@ -209,13 +202,13 @@
 .event-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1f36;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
 }
 
 .event-description {
   font-size: 14px;
-  color: #5e6c84;
+  color: var(--text-secondary);
   margin: 0 0 16px 0;
   line-height: 1.5;
 }
@@ -225,7 +218,7 @@
   align-items: center;
   gap: 16px;
   font-size: 13px;
-  color: #5e6c84;
+  color: var(--text-secondary);
 }
 
 .event-date {
@@ -250,18 +243,18 @@
   padding: 6px;
   cursor: pointer;
   border-radius: 4px;
-  color: #5e6c84;
+  color: var(--text-secondary);
   transition: all 0.2s;
 }
 
 .edit-button:hover {
-  background-color: #e3f2fd;
-  color: #2196f3;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
 }
 
 .delete-button:hover {
-  background-color: #ffebee;
-  color: #f44336;
+  background-color: var(--error-color);
+  color: var(--bg-secondary);
 }
 
 .loading,
@@ -269,7 +262,7 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 40px;
-  color: #5e6c84;
+  color: var(--text-secondary);
   font-size: 16px;
 }
 
@@ -297,6 +290,10 @@
 
   .filters {
     width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding-right: 0;
+    padding-bottom: 1rem;
   }
 
   .events-section {

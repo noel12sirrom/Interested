@@ -75,7 +75,31 @@ const HomePage: React.FC = () => {
         createdAt: doc.data().createdAt?.toDate(),
         date: doc.data().date?.toDate(),
       })) as Event[];
-      setEvents(eventsData);
+
+      // Apply filters based on activeFilter
+      let filteredEvents = eventsData;
+      
+      if (activeFilter === 'my' && user?.uid) {
+        filteredEvents = eventsData.filter(event => event.hostId === user.uid);
+      } else if (activeFilter === 'interests' && userProfile?.interests?.length) {
+        filteredEvents = eventsData.filter(event => 
+          event.interests.some(eventInterest => 
+            userProfile.interests.some(userInterest => 
+              eventInterest.toLowerCase() === userInterest.toLowerCase()
+            )
+          ) && event.hostId !== user?.uid
+        );
+      }
+
+      // Apply location search filter if exists
+      if (searchQuery) {
+        const searchTerm = searchQuery.toLowerCase();
+        filteredEvents = filteredEvents.filter(event => 
+          event.location.toLowerCase().includes(searchTerm)
+        );
+      }
+
+      setEvents(filteredEvents);
     });
 
     return () => unsubscribe();
