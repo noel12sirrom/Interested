@@ -1,84 +1,108 @@
 import * as React from 'react';
-import { createContext, useContext, useState, useEffect } from 'react';
-import { User } from 'firebase/auth';
-import { onAuthStateChange, getCurrentUser } from '../firebase/authService';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { 
+  User,
+  onAuthStateChanged,
+  signOut as firebaseSignOut
+} from 'firebase/auth';
+import { auth } from '../firebase/config';
+import { getUserProfile, UserProfile } from '../firebase/userService';
 
 interface AuthContextType {
   user: User | null;
+  userProfile: UserProfile | null;
   loading: boolean;
   hasProfile: boolean;
-  checkUserProfile: () => Promise<boolean>;
+  signOut: () => Promise<void>;
+  checkUserProfile: (userToCheck?: User | null) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  userProfile: null,
   loading: true,
   hasProfile: false,
-  checkUserProfile: async () => false,
+  signOut: async () => {},
+  checkUserProfile: async () => {}
 });
 
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasProfile, setHasProfile] = useState(false);
 
-  const checkUserProfile = async () => {
-    if (!user) return false;
+  const checkUserProfile = async (userToCheck?: User | null) => {
+    const currentUser = userToCheck || user;
+    console.log('Checking user profile...', currentUser?.uid);
     
+    if (!currentUser) {
+      console.log('No user found, clearing profile');
+      setUserProfile(null);
+      setHasProfile(false);
+      return;
+    }
+
     try {
-      const userDocRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
-      
-      const hasCompleteProfile = userDoc.exists() && 
-        userDoc.data()?.interests?.length > 0 && 
-        userDoc.data()?.name && 
-        userDoc.data()?.location;
-      
-      setHasProfile(hasCompleteProfile);
-      return hasCompleteProfile;
+      const profile = await getUserProfile(currentUser.uid);
+      console.log('Profile fetched:', profile);
+      if (profile) {
+        setUserProfile(profile);
+        setHasProfile(true);
+      } else {
+        console.log('No profile found for user');
+        setUserProfile(null);
+        setHasProfile(false);
+      }
     } catch (error) {
-      console.error('Error checking user profile:', error);
-      return false;
+      console.error('Error fetching user profile:', error);
+      setUserProfile(null);
+      setHasProfile(false);
     }
   };
 
   useEffect(() => {
-    // Set initial user if already logged in
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-      checkUserProfile();
-    }
-
-    // Subscribe to auth state changes
-    const unsubscribe = onAuthStateChange(async (user) => {
-      setUser(user);
-      if (user) {
-        await checkUserProfile();
+    console.log('Setting up auth state listener');
+    const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
+      console.log('Auth state changed:', newUser?.uid);
+      setUser(newUser);
+      if (newUser) {
+        await checkUserProfile(newUser);
       } else {
+        setUserProfile(null);
         setHasProfile(false);
       }
       setLoading(false);
     });
 
-    // Cleanup subscription
     return () => unsubscribe();
   }, []);
 
+  const signOut = async () => {
+    try {
+      await firebaseSignOut(auth);
+      setUserProfile(null);
+      setHasProfile(false);
+    } catch (error) {
+      console.error('Error signing out:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
+    userProfile,
     loading,
     hasProfile,
-    checkUserProfile,
+    signOut,
+    checkUserProfile
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }; 

@@ -17,19 +17,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
   const { user, loading, hasProfile } = useAuth();
   const location = useLocation();
 
+  console.log('ProtectedRoute rendering:', { user: user?.uid, loading, hasProfile, path: location.pathname });
+
   if (loading) {
+    console.log('ProtectedRoute: Still loading');
     return <div>Loading...</div>;
   }
 
   if (!user) {
-    return <Navigate to="/login" />;
+    console.log('ProtectedRoute: No user, redirecting to /');
+    return <Navigate to="/" />;
   }
 
   // If we're already on the profile page, don't redirect
   if (requireProfile && !hasProfile && location.pathname !== '/profile') {
+    console.log('ProtectedRoute: No profile, redirecting to /profile');
     return <Navigate to="/profile" state={{ from: location }} replace />;
   }
 
+  console.log('ProtectedRoute: Rendering children');
   return <>{children}</>;
 };
 
@@ -38,10 +44,10 @@ const App: React.FC = () => {
     <AuthProvider>
       <Router>
         <Routes>
+          <Route path="/" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
           <Route
-            path="/"
+            path="/home"
             element={
               <ProtectedRoute>
                 <HomePage />

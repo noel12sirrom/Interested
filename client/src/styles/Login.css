@@ -57,7 +57,8 @@
 
 .brand-logo {
   width: 120px;
-  margin-bottom: 2rem;
+  margin: 0 auto 2rem;
+  display: block;
 }
 
 .login-card h2 {
@@ -65,12 +66,14 @@
   color: #1a1a1a;
   margin-bottom: 0.5rem;
   font-weight: 600;
+  text-align: center;
 }
 
 .subtitle {
   color: #666;
   margin-bottom: 2rem;
   font-size: 1rem;
+  text-align: center;
 }
 
 .form-group {
@@ -157,21 +160,68 @@
 .divider {
   display: flex;
   align-items: center;
-  text-align: center;
+  justify-content: center;
   margin: 1.5rem 0;
-  color: #666;
+  position: relative;
 }
 
 .divider::before,
 .divider::after {
   content: '';
-  flex: 1;
-  border-bottom: 1px solid #e1e1e1;
+  position: absolute;
+  top: 50%;
+  width: calc(50% - 30px);
+  height: 1px;
+  background-color: #e1e1e1;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
 }
 
 .divider span {
+  background-color: white;
   padding: 0 1rem;
+  color: #666;
   font-size: 0.9rem;
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  text-align: center;
+  min-width: 40px;
+}
+
+.google-button {
+  width: 100%;
+  padding: 0.875rem;
+  background: white;
+  color: #4a4a4a;
+  border: 2px solid #e1e1e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.google-button:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  border-color: #d1d1d1;
+}
+
+.google-button:disabled {
+  background-color: #f8f9fa;
+  border-color: #e1e1e1;
+  cursor: not-allowed;
 }
 
 .social-login {
@@ -206,7 +256,18 @@
   text-align: center;
   margin-top: 1.5rem;
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+}
+
+.signup-link span {
+  color: #0066cc;
+  cursor: pointer;
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
+
+.signup-link span:hover {
+  text-decoration: underline;
 }
 
 .text-button {

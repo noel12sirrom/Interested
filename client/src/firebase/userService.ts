@@ -1,21 +1,34 @@
 import { db } from './config';
 import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, DocumentData } from 'firebase/firestore';
+import { User } from 'firebase/auth';
 
-interface UserData {
+export interface UserProfile {
   uid: string;
   email: string;
-  displayName?: string;
-  interests?: string[];
+  displayName: string;
+  interests: string[];
+  location?: string;
   bio?: string;
   profilePicture?: string;
-  // Add any other user fields you need
+  links?: number;
+  events?: number;
 }
 
-export const createUserProfile = async (userData: UserData) => {
+export const createUserProfile = async (profile: UserProfile) => {
   try {
-    const userRef = doc(db, 'users', userData.uid);
-    await setDoc(userRef, {
-      ...userData,
+    // Check if email already exists
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('email', '==', profile.email));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      throw new Error('Email already registered');
+    }
+
+    // Create new profile if email is unique
+    const userDocRef = doc(db, 'users', profile.uid);
+    await setDoc(userDocRef, {
+      ...profile,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
@@ -28,27 +41,25 @@ export const createUserProfile = async (userData: UserData) => {
 
 export const getUserProfile = async (uid: string) => {
   try {
-    const userRef = doc(db, 'users', uid);
-    const userSnap = await getDoc(userRef);
-    
-    if (userSnap.exists()) {
-      return userSnap.data() as UserData;
-    } else {
-      return null;
+    const userDocRef = doc(db, 'users', uid);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      return userDoc.data() as UserProfile;
     }
+    return null;
   } catch (error) {
-    console.error('Error fetching user profile:', error);
+    console.error('Error getting user profile:', error);
     throw error;
   }
 };
 
-export const updateUserProfile = async (uid: string, updateData: Partial<UserData>) => {
+export const updateUserProfile = async (uid: string, updates: Partial<UserProfile>) => {
   try {
-    const userRef = doc(db, 'users', uid);
-    await updateDoc(userRef, {
-      ...updateData,
+    const userDocRef = doc(db, 'users', uid);
+    await setDoc(userDocRef, {
+      ...updates,
       updatedAt: new Date().toISOString()
-    });
+    }, { merge: true });
     return true;
   } catch (error) {
     console.error('Error updating user profile:', error);
@@ -69,15 +80,6 @@ export const updateUserInterests = async (uid: string, interests: string[]) => {
     throw error;
   }
 };
-
-export interface UserProfile {
-  uid: string;
-  name: string;
-  location: string;
-  interests: string[];
-  bio?: string;
-  profilePicture?: string;
-}
 
 export interface MatchedUser extends UserProfile {
   commonInterests: string[];
