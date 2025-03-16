@@ -60,54 +60,56 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="homepage">
-      <header className="header">
-        <h1 className="logo">LinkUp</h1>
-        <div className="search-bar">
-          <FaSearch className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search event"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <button className="create-button" onClick={testCors}>
-          <FaPlus />
-        </button>
-        {corsTest && <div className="cors-test-result">{corsTest}</div>}
-      </header>
+      <div className="homepage-content">
+        <header className="header">
+          <h1 className="logo">LinkUp</h1>
+          <div className="search-bar">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search event"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <button className="create-button" onClick={testCors}>
+            <FaPlus />
+          </button>
+          {corsTest && <div className="cors-test-result">{corsTest}</div>}
+        </header>
 
-      <main className="main-content">
-        <aside className="filters">
-          <h2>Filter:</h2>
-          {/* Add filter options here */}
-        </aside>
+        <main className="main-content">
+          <aside className="filters">
+            <h2>Filter:</h2>
+            {/* Add filter options here */}
+          </aside>
 
-        <section className="events-list">
-          {events.map(event => (
-            <div key={event.id} className="event-card">
-              <div className="event-host">
-                <div className="host-avatar">
-                  <FaUser />
+          <section className="events-list">
+            {events.map(event => (
+              <div key={event.id} className="event-card">
+                <div className="event-host">
+                  <div className="host-avatar">
+                    <FaUser />
+                  </div>
+                  <div className="host-info">
+                    <p className="host-name">{event.host}</p>
+                    <p className="common-interests">{event.commonInterests} common interests</p>
+                  </div>
+                  <button className="link-button">L</button>
                 </div>
-                <div className="host-info">
-                  <p className="host-name">{event.host}</p>
-                  <p className="common-interests">{event.commonInterests} common interests</p>
+                
+                <div className="event-details">
+                  <h3 className="event-title">{event.title}</h3>
+                  <p className="event-location">
+                    <FaMapMarkerAlt className="location-icon" />
+                    {event.location}
+                  </p>
                 </div>
-                <button className="link-button">L</button>
               </div>
-              
-              <div className="event-details">
-                <h3 className="event-title">{event.title}</h3>
-                <p className="event-location">
-                  <FaMapMarkerAlt className="location-icon" />
-                  {event.location}
-                </p>
-              </div>
-            </div>
-          ))}
-        </section>
-      </main>
+            ))}
+          </section>
+        </main>
+      </div>
     </div>
   );
 };
